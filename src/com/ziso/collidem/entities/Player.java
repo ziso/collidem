@@ -10,16 +10,16 @@ import android.graphics.Paint;
  * Date: 12/9/2014
  * Time: 6:52 PM
  */
-public class Enemy extends GameObject {
+public class Player extends GameObject {
 
-    public Enemy(Resources res, int x, int y) {
+    public Player(Resources res, int x, int y) {
         super(x, y);
     }
 
     @Override
     public void onDraw(Canvas canvas) {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        p.setColor(Color.WHITE);
+        p.setColor(Color.GREEN);
         canvas.drawCircle(position.x, position.y, size, p);
     }
 }
