@@ -10,6 +10,7 @@ import com.ziso.collidem.entities.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * User: zisovitc
@@ -48,30 +49,67 @@ public class GameBoard extends View{
     }
 
     private void generatePlayer() {
-        player = new Player(getResources(), (int)getMeasuredWidth() / 2, (int)getMeasuredHeight() / 2);
+        player = new Player(getResources(), putOnGrid(new Point((int)getMeasuredWidth() / 2, (int)getMeasuredHeight() / 2)));
+    }
+
+    private Point putOnGrid(Point point) {
+        int x = Math.round((point.x) / getResources().getInteger(R.integer.cell_size)) * getResources().getInteger(R.integer.cell_size);
+        int y = Math.round((point.y) / getResources().getInteger(R.integer.cell_size)) * getResources().getInteger(R.integer.cell_size);
+        return new Point(x, y);
     }
 
     private void generateEnemies() {
         enemies = new ArrayList<Enemy>();
-        int x, y;
-        x = 0;
-        y = 0;
-        for (int i = 0 ; i < 10 ; i++) {
-            enemies.add(new Enemy(getResources(), x, y));
-            x +=60;
-            if (x > 200) {
-                x = 0;
-                y += 60;
-            }
+        for (int i = 0 ; i < getResources().getInteger(R.integer.initial_number_of_enemies) ; i++) {
+            Point point = getRandomPoint();
+            enemies.add(new Enemy(getResources(), putOnGrid(point)));
         }
+    }
+
+    /*
+    * return a valid random point for placing enemy at the start of a round
+    * valid point must be follow min_enemy_distance from the player and be rounded to cell_size
+    * */
+    private Point getRandomPoint() {
+        Random r = new Random();
+        int r1 = r.nextInt((int)getMeasuredWidth() / 2 - getResources().getInteger(R.integer.min_enemy_distance));
+        int r2 = r.nextInt(2) + 1;
+        int x = r1 * r2;
+
+        int r3 = r.nextInt((int)getMeasuredHeight() / 2 - getResources().getInteger(R.integer.min_enemy_distance));
+        int r4 = r.nextInt(2) + 1;
+        int y = r3 * r4;
+        return new Point(x, y);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         player.moveTowards(new Point((int)event.getX(), (int)event.getY()));
-
+        moveEnemiesToPlayer();
+        checkCollisions();
         this.invalidate();
         return super.onTouchEvent(event);
+    }
+
+    private void checkCollisions() {
+        for (Enemy enemy : enemies) {
+            for (Enemy enemy1 : enemies) {
+                if (enemy.getId() != enemy1.getId()) {
+                    if (enemy.getPosition().equals(enemy1.getPosition())){
+                        enemy.kill();
+                        enemy1.kill();
+                    }
+                }
+            }
+        }
+    }
+
+    private void moveEnemiesToPlayer() {
+        for (Enemy enemy : enemies) {
+            if(enemy.isAlive()) {
+                enemy.moveTowards(player.getPosition());
+            }
+        }
     }
 
 //    @Override

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="initial_number_of_enemies">10</integer>
+    <integer name="cell_size">20</integer>
+    <integer name="min_enemy_distance">100</integer>
 </resources>
