@@ -14,13 +14,17 @@ import android.graphics.Point;
 public class Player extends GameObject {
 
     public Player(Resources res, Point initialPosition) {
-        super(res, initialPosition);
+        super(res, initialPosition, 2);
     }
 
     @Override
     public void onDraw(Canvas canvas) {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        p.setColor(Color.GREEN);
+        if(isAlive == true) {
+            p.setColor(Color.GREEN);
+        } else {
+            p.setColor(Color.RED);
+        }
         canvas.drawCircle(position.x, position.y, size / 2, p);
     }
 }

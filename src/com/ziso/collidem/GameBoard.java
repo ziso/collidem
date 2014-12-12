@@ -2,6 +2,8 @@ package com.ziso.collidem;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,7 +19,7 @@ import java.util.Random;
  * Date: 12/10/2014
  * Time: 2:40 PM
  */
-public class GameBoard extends View{
+public class GameBoard extends View {
     private List<Enemy> enemies;
     private Player player;
 
@@ -27,12 +29,19 @@ public class GameBoard extends View{
 
     @Override
     public void onDraw(Canvas canvas) {
-        if(enemies != null) {
+        if (enemies != null) {
             drawEnemies(canvas);
         }
 
         if (player != null) {
             player.onDraw(canvas);
+        }
+        if (!player.isAlive()) {
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setColor(Color.RED);
+            paint.setTextAlign(Paint.Align.CENTER);
+            paint.setTextSize(30);
+            canvas.drawText("Game Over!", getMeasuredWidth() / 2, getMeasuredHeight() / 2, paint);
         }
     }
 
@@ -49,7 +58,7 @@ public class GameBoard extends View{
     }
 
     private void generatePlayer() {
-        player = new Player(getResources(), putOnGrid(new Point((int)getMeasuredWidth() / 2, (int)getMeasuredHeight() / 2)));
+        player = new Player(getResources(), putOnGrid(new Point((int) getMeasuredWidth() / 2, (int) getMeasuredHeight() / 2)));
     }
 
     private Point putOnGrid(Point point) {
@@ -60,7 +69,7 @@ public class GameBoard extends View{
 
     private void generateEnemies() {
         enemies = new ArrayList<Enemy>();
-        for (int i = 0 ; i < getResources().getInteger(R.integer.initial_number_of_enemies) ; i++) {
+        for (int i = 0; i < getResources().getInteger(R.integer.initial_number_of_enemies); i++) {
             Point point = getRandomPoint();
             enemies.add(new Enemy(getResources(), putOnGrid(point)));
         }
@@ -72,11 +81,11 @@ public class GameBoard extends View{
     * */
     private Point getRandomPoint() {
         Random r = new Random();
-        int r1 = r.nextInt((int)getMeasuredWidth() / 2 - getResources().getInteger(R.integer.min_enemy_distance));
+        int r1 = r.nextInt((int) getMeasuredWidth() / 2 - getResources().getInteger(R.integer.min_enemy_distance));
         int r2 = r.nextInt(2) + 1;
         int x = r1 * r2;
 
-        int r3 = r.nextInt((int)getMeasuredHeight() / 2 - getResources().getInteger(R.integer.min_enemy_distance));
+        int r3 = r.nextInt((int) getMeasuredHeight() / 2 - getResources().getInteger(R.integer.min_enemy_distance));
         int r4 = r.nextInt(2) + 1;
         int y = r3 * r4;
         return new Point(x, y);
@@ -84,7 +93,7 @@ public class GameBoard extends View{
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        player.moveTowards(new Point((int)event.getX(), (int)event.getY()));
+        player.moveTowards(putOnGrid(new Point((int) event.getX(), (int) event.getY())));
         moveEnemiesToPlayer();
         checkCollisions();
         this.invalidate();
@@ -93,9 +102,12 @@ public class GameBoard extends View{
 
     private void checkCollisions() {
         for (Enemy enemy : enemies) {
+            if (enemy.getPosition().equals(player.getPosition())) {
+                gameOver();
+            }
             for (Enemy enemy1 : enemies) {
                 if (enemy.getId() != enemy1.getId()) {
-                    if (enemy.getPosition().equals(enemy1.getPosition())){
+                    if (enemy.getPosition().equals(enemy1.getPosition())) {
                         enemy.kill();
                         enemy1.kill();
                     }
@@ -104,9 +116,14 @@ public class GameBoard extends View{
         }
     }
 
+    private void gameOver() {
+        player.kill();
+        invalidate();
+    }
+
     private void moveEnemiesToPlayer() {
         for (Enemy enemy : enemies) {
-            if(enemy.isAlive()) {
+            if (enemy.isAlive()) {
                 enemy.moveTowards(player.getPosition());
             }
         }

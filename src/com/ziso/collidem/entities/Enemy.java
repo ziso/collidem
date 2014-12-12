@@ -13,11 +13,8 @@ import android.graphics.Point;
  */
 public class Enemy extends GameObject {
 
-    private boolean isAlive;
-
     public Enemy(Resources res, Point initialPosition) {
-        super(res, initialPosition);
-        isAlive = true;
+        super(res, initialPosition, 1);
     }
 
     @Override
@@ -29,17 +26,5 @@ public class Enemy extends GameObject {
             p.setColor(Color.DKGRAY);
         }
         canvas.drawCircle(position.x, position.y, size / 2, p);
-    }
-
-    public void kill() {
-        isAlive = false;
-    }
-
-    public void revive() {
-        isAlive = true;
-    }
-
-    public boolean isAlive() {
-        return isAlive;
     }
 }
